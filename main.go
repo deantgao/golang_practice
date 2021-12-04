@@ -10,15 +10,10 @@ import (
 	"strings"
 )
 
-func logPlay(str string) {
-	log.Println(str)
-}
-
 type animal_acts interface {
 	speak(words string)
 	eat()
 }
-
 type animal struct {
 	can_speak    bool
 	hunger_level int
@@ -43,12 +38,10 @@ func makeAnimal(ani animal_acts, words string) {
 func notmain() {
 	new_animal := &animal{can_speak: false, hunger_level: 0}
 	fmt.Printf("Newborn animal can_speak: %v, hunger_level: %v \n", new_animal.can_speak, new_animal.hunger_level)
-	makeAnimal(new_animal, "Say something I'm giving up on you")
 	makeAnimal(new_animal, "We just vibin")
 	makeAnimal(new_animal, "Where are we going?")
 	makeAnimal(new_animal, "I don't know any more")
 	fmt.Printf("After it's all said and done, can_speak: %v, hunger_level: %v \n", new_animal.can_speak, new_animal.hunger_level)
-	logPlay("What it do?")
 }
 
 // longestContiguous should take two arrays of strings and find the longest contiguous sequence that appears in both
@@ -185,7 +178,6 @@ func parseMoves(moves []string, aim bool) (hor, ver int) {
 func parseBinary(bins []string) (string, string) {
 	rows := len(bins)
 	cols := len(bins[0])
-	fmt.Printf("num of cols is %v\n", cols)
 	gam, eps := "", ""
 	for i := 0; i < cols; i++ {
 		numOnes, numZeros := 0, 0
@@ -196,7 +188,7 @@ func parseBinary(bins []string) (string, string) {
 				numOnes += 1
 			}
 		}
-		if numOnes > numZeros {
+		if numOnes >= numZeros {
 			gam += "1"
 			eps += "0"
 		} else {
@@ -216,6 +208,34 @@ func binaryToDecimal(bin string) int {
 		power -= 1
 	}
 	return int(decimal)
+}
+
+func genOxygenRating(ptr int, mostFrequent string, bins []string) string {
+	if len(bins) == 1 {
+		return bins[0]
+	}
+	result := []string{}
+	for _, bin := range bins {
+		if string(bin[ptr]) == string(mostFrequent[ptr]) {
+			result = append(result, bin)
+		}
+	}
+	mostFrequent, _ = parseBinary(result)
+	return genOxygenRating(ptr+1, mostFrequent, result)
+}
+
+func genCO2Rating(ptr int, leastFrequent string, bins []string) string {
+	if len(bins) == 1 {
+		return bins[0]
+	}
+	result := []string{}
+	for _, bin := range bins {
+		if string(bin[ptr]) == string(leastFrequent[ptr]) {
+			result = append(result, bin)
+		}
+	}
+	_, leastFrequent = parseBinary(result)
+	return genCO2Rating(ptr+1, leastFrequent, result)
 }
 
 func main() {
@@ -243,6 +263,16 @@ func main() {
 	decGamma := binaryToDecimal(gamma)
 	decEpsilon := binaryToDecimal(epsilon)
 	fmt.Printf("the decimal value for gamma is %v and epsilon %v\n", decGamma, decEpsilon)
-	fmt.Printf("the product of gamme and epsilon is %v\n", decGamma*decEpsilon)
+	// fmt.Printf("the product of gamma and epsilon is %v\n", decGamma*decEpsilon)
+
+	oxyRating := genOxygenRating(0, gamma, bins)
+	co2Rating := genCO2Rating(0, epsilon, bins)
+	fmt.Printf("the binary num oxygen rating is %v\n", oxyRating)
+	fmt.Printf("the binary num CO2 rating is %v\n", co2Rating)
+	decOxyRating := binaryToDecimal(oxyRating)
+	decCO2Rating := binaryToDecimal(co2Rating)
+	fmt.Printf("the binary num for oxygen rating is %v\n", decOxyRating)
+	fmt.Printf("the binary num for CO2 rating is %v\n", decCO2Rating)
+	fmt.Printf("the product of oxy x CO2 rating is %v\n", decOxyRating*decCO2Rating)
 
 }
